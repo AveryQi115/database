@@ -1,0 +1,6 @@
+.vscode
+.idea
+django_env/
+docs/
+db.sqlite3
+
