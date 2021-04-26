@@ -1,0 +1,70 @@
+{% extends "base.html" %} {% load staticfiles %}
+{% block title %} 用户信息 {% endblock title %}
+{% block content %}
+<style>
+	img.pos_top
+	{
+		position:relative;
+		top:-460px;
+	}
+	</style>
+<br>
+<br>
+<div class="container-fluid">
+	<div class="row ">
+		<!-- 
+片段名称：  修改信息，密码的链接
+作者:	    ssc
+时间：	    2020-8-2
+功能：	    提供两个按钮
+			可以连接到修改个人信息或修改密码的界面
+修改记录： 
+--> 
+{%include 'userprofile/sidebar.html'%}
+
+		<div class="offset-4">
+<!-- 
+片段名称：  修改密码
+作者:	    ssc
+时间：	    2020-8-2
+功能：	    输入原密码和想要修改的密码，可以更改密码
+修改记录： 
+--> 
+		<!--修改密码-->
+		<form method="post" action="." enctype="multipart/form-data">
+				{% csrf_token %}
+                <!--旧密码-->
+				<div class="form-group mt-4 mb-4">
+					 <label for="old_password">原密码</label>
+					 <input type="password" class="form-control" id="old_password" name="old_password" required>
+				</div>
+
+				<!--新密码-->
+				<div class="form-group mt-4 mb-4">
+					 <label for="new_password">现密码</label>
+					 <input type="password" class="form-control" id="new_password" name="new_password" required>
+				</div>
+
+				<!-- 确认新密码 -->
+                <div class="form-group mt-4 mb-4">
+                    <label for="new_password2">确认密码</label>
+                    <input type="password" class="form-control" id="new_password2" name="new_password2" required>
+				</div>
+					
+                <!-- 提交按钮 -->
+				 <button type="submit" class="btn btn-primary">更改密码</button>
+			</form>
+		</div>
+	</div>
+</div>
+{% if messages %}
+<!--信息弹框形式-->
+<script>
+    {% for msg in messages %}
+        alert('{{ msg.message }}');
+    {% endfor %}
+</script>
+{% endif %}
+
+{% endblock content %}
+

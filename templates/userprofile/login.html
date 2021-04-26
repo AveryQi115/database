@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %} 登录 {% endblock title %}
+{% block content %}
+<!-- 
+片段名称：  登入界面
+作者:	    ssc
+时间：	    2020-8-2
+功能：	    用户的登入界面
+            输入账号，密码，可以登入
+            未注册用户可以进入注册界面
+            若输入错误，会弹框提示输入错误
+            若输入正确，可以直接登录
+修改记录： 
+--> 
+<div class="container">
+        <div class="d-flex mt-5 justify-content-center">
+            <br>
+            <form method="post" action=".">
+                {% csrf_token %}
+                <!-- 账号 -->
+                <div class="form-group">
+                    <label for="username">账号</label>
+                    <input type="text" class="form-control" id="username" name="username">
+                </div>
+                <!-- 密码 -->
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" class="form-control" id="password" name="password">
+                </div>
+                <!-- 提交按钮 -->
+                <button type="submit" class="btn btn-primary">提交</button>
+                <!-- 注册 -->
+                <div class="col-12">
+                    <br>
+                    <h5>点击<a href='{% url "userprofile:register" %}'>注册</a></h5>
+                    <br>
+                </div>
+            </form>
+        </div>
+</div>
+{% if messages %}
+        <script>
+            {% for msg in messages %}
+                alert('{{ msg.message }}');
+            {% endfor %}
+        </script>
+{% endif %}
+{% endblock content %}

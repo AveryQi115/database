@@ -1,0 +1,38 @@
+<!-- 定义导航栏 ，黑色，固定在顶部-->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark navbar-fixed-top">
+  <div class="container-fluid">
+
+    <!-- 同济堂 ，按钮点击可以返回主界面-->
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/">Hospitality</a>
+    </div>
+
+    <ul class="nav navbar-nav navbar-right">
+      <!-- Django的 if 模板语句 -->
+      {% if user.is_authenticated %}
+          <!-- 如果用户已经登录，则显示用户名下拉框 -->
+          <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  {% if globle_profile.avatar %}
+                  <img src={{ globle_profile.avatar.url }} alt={{user.username}} style="width: 40px;height: 40px; border-radius:50%;" />
+                  {% else %}
+                  <img src="https://ss0.bdstatic.com/94oJfD_bAAcT8t7mm9GUKT-xh_/timg?image&quality=100&size=b4000_4000&sec=1592383038&di=3918b09a3244e0fa942873a932879bc8&src=http://pic.soutu123.cn/element_origin_min_pic/01/37/09/22573c3a831082c.jpg!/fw/700/quality/90/unsharp/true/compress/true" alt={{user.username}} style="width: 40px;height: 40px; border-radius:50%;" />
+                  {% endif %}
+                  <!--如果有头像，会显示头像，没有头像，会显示用户名-->
+              </a>
+
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" href='{% url "userprofile:profile" user.id %}'>个人信息</a>
+                  <a class="dropdown-item" href='{% url "userprofile:logout" %}'>退出登录</a>
+              </div>
+          </li>
+      <!-- 如果用户未登录，则显示 “登录” -->
+      {% else %}
+          <li class="nav-item">
+              <a class="nav-link" href="{% url 'userprofile:login' %}">登录</a>
+          </li>                    
+      <!-- if 语句在这里结束 -->
+      {% endif %}
+    </ul>
+  </div>
+</nav>

@@ -1,0 +1,12 @@
+
+        .wrapper {
+          width: 100%;    /* 也可以固定宽度 */
+          height: 200px;
+        }
+        .wrapper > div {
+          display: inline-block;    /* 如需支持IE8以下版本，用浮动来做 */
+          width: calc(100% / 3.09);    /* 此处运用了一个css3的表达式，将div三等分，IE8及以上可以支持，当然也可以根据需要设置固定值 */
+          width: -webkit-calc(100% / 3.09); /*3.09 排除margin的宽度*/
+          width: -moz-calc(100% / 3.09);
+          height: 100%;
+        }

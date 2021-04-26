@@ -1,0 +1,116 @@
+<!-- extends表明此页面继承自 base.html 文件 -->
+{% extends "base.html" %}
+{% load staticfiles %}
+
+<!-- 写入 base.html 中定义的 title -->
+{% block title %}
+    用户搜索
+{% endblock title %}
+
+<!-- 写入 base.html 中定义的 content -->
+{% block content %}
+ <!-- 
+片段名称：用户的搜索框
+作者:	ssc
+时间：	2020-8-1
+功能：	在搜索框中输入内容，搜索相应内容
+修改记录： 
+-->
+    <!-- 新增，对应类型搜索栏 -->
+    <div class="container">
+        <div class="d-flex justify-content-center mt-4">
+            <form class="form-inline" >
+                <!-- type对应的是用户在之前的搜索栏选择的类型（问题，文章，回答）-->
+                <label for="search" class="mr-4">用户搜索</label>
+                <input type="text"
+                    class="form-control mb-2 mr-sm-2"
+                       id="search"
+                    name="search"
+                    placeholder="搜索用户..."
+                    required
+                >
+            </form>
+        </div>
+    </div>
+
+<!-- 
+片段名称：  搜索结果的显示
+作者:	    ssc
+时间：	    2020-8-1
+功能：	    显示搜索结果，如果搜索到相应结果，会以列表形式的显示
+            搜索到的用户，可以通过链接进入个人空间
+            如果是拥有超级权限的话，可以禁封用户
+修改记录： 
+-->
+    <!-- 新增，搜索提示语 -->
+    {% if search_u %}
+        {% if users %}
+            <h4><span style="color: cadetblue">"{{ search_u }}"</span>的搜索结果如下：</h4>
+            <hr>
+        {% else %}
+            <h4>暂无<span style="color: cadetblue">"{{ search_u }}"</span>有关的用户。</h4>
+            <hr>
+        {% endif %}
+        <div class="row mt-2 ml-4">
+            <ul class="list-group">
+
+                {% for user in users %}
+                    <li class="list-group-item">
+                        <a href="{% url 'userprofile:user_get_myob' user.id %}"><!--链接到用户信息界面-->
+                        用户名：
+                        <span style="color: #5897fb;">
+                            {{ user.username }}
+                        </span>
+                        邮箱：
+                         <span style="color: #01a252;">{{ user.email }}</span>
+                        </a>
+
+                        {% if request.user.is_superuser %}
+<!--         <a  href="{% url 'userprofile:user_forbidden' user.id %}" class="btn btn-primary">封禁用户</a>-->
+
+
+                        <a href="#" onclick="confirm_fib_user()" class="btn btn-primary">封禁用户</a>
+<script>
+// 函数名称：禁封函数
+//作者：    tyt
+//时间：    2020-08-01
+//函数功能： 弹窗提示是否禁封用户
+//          如果确认禁封
+    function confirm_fib_user() {
+        // 调用layer弹窗组件
+        layer.open({
+            // 弹窗标题
+            title: "确认禁封",
+            // 正文
+            content: "确认禁封该用户吗？",
+            // 点击确定按钮后调用的回调函数
+            yes: function(index, layero) {
+                // 指定应当前往的 url
+                location.href="{% url 'userprofile:user_forbidden' user.id %}"
+            },
+        });
+    }
+</script>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+
+            </ul>
+        </div>
+    {% else %}
+    <h4>暂无搜索内容</h4>
+    {% endif %}
+
+ {% if messages %}
+<!--弹框形式-->
+        <script>
+            {% for msg in messages %}
+                alert('{{ msg.message }}');
+            {% endfor %}
+        </script>
+{% endif %}
+{% endblock content %}
+
+{% block script %}
+
+{% endblock script %}

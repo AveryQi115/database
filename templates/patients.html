@@ -1,0 +1,47 @@
+<div class="text-center mt-4">
+    <h4><b>病人管理</b></h4>
+</div>
+<!-- 
+片段名称：  显示热门问题
+作者:	    qhy
+时间：	    2020-8-4
+功能：	   显示热门问题，根据热度顺序显示，并根据会显示所属板块，点击可以浏览详情
+修改记录： 
+--> 
+<!-- 列表循环 -->
+<div class="row ml-5">
+    {% for patient in patient_list %}
+        <!-- 文章内容 -->
+        <div class="col-12">
+            <!-- 栏目 -->
+            <button type="button"
+                class="btn btn-sm mb-2">
+                {{ patient.user.username }}
+            </button>
+            <!-- 标题 -->
+            <h4>
+                <b><a href='{% url "patient:medicalRecord" patient.user.id %}'>{{ patient.name }}</a>
+                </b>
+            </h4>
+            <!-- 摘要 -->
+            <div>
+                <p style="color: gray;">
+                    {{ patient.mr.description|slice:'100' }}...
+                </p>
+            </div>
+            <!-- 注脚 -->
+            <p>
+                <!-- 附加信息 -->
+                <span>
+                    <i class="fas fa-user" style="color:yellowgreen"></i>
+                    {{ patient.department }}
+                </span>
+                <span>
+                    <i class="fas fa-clock" style="color:gray;"></i>
+                    {{ patient.mr.tag}}
+                </span>
+            </p>
+            <hr>
+        </div>
+    {% endfor %}
+</div>

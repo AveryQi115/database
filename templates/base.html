@@ -1,0 +1,71 @@
+<!-- 
+片段名称： 页面模板
+作者:     wzd
+时间：     2020-8-5
+功能：    所有页面以此为基本模板添加功能
+修改记录： 
+--> 
+
+<!-- 载入静态文件 -->
+<!-- 静态文件夹寻址需要在setting里部署！！！ -->
+{% load staticfiles %}
+<!DOCTYPE html>
+<!-- 网站主语言 -->
+<html lang="zh-cn">
+
+<head>
+    <!-- 网站采用的字符编码 -->
+    <meta charset="utf-8">
+    <!-- 预留网站标题的位置 -->
+    <title>{% block title %}{% endblock %}</title>
+    <!-- 引入bootstrap的css文件 -->
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/blockContent.css' %}">
+    <link rel="stylesheet" href="{% static 'fontawesome/css/all.css' %}">
+    
+</head>
+
+<body>
+    <!-- 引入导航栏 -->
+    {% include 'header.html' %}
+    <!-- 预留具体页面的位置 -->
+    <!-- 新增两个 div 容器 -->
+    <div id="wrapper">
+        {% block content %}{% endblock content %}
+        <div id="push"></div>
+    </div>
+    <!-- 引入注脚 -->
+    {% include 'footer.html' %}
+    <!-- bootstrap.js 依赖 jquery.js 和popper.js，因此在这里引入 -->
+    <script src="{% static 'jquery/jquery.js' %}"></script>
+
+    <script src="{% static 'popper/popper.js' %}"></script>
+    <!-- 引入bootstrap的js文件 -->
+    <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+    <!-- 引入layer.js弹窗功能 -->
+    <script src="{% static 'layer/layer.js' %}"></script>
+    <!-- 在jquery后面引入 -->
+    {% include 'back_to_top_func.html' %}
+
+    {% block script %}{% endblock script %}
+
+<!-- 增加样式 -->
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        #wrapper {
+            min-height: 100%;
+            margin-bottom: -60px;
+        }
+
+        #footer,
+        #push {
+            height: 60px;
+        }
+    </style>
+</body>
+
+</html>

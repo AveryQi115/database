@@ -1,0 +1,55 @@
+{% extends "base.html" %} {% load staticfiles %}
+{% block title %} 用户信息 {% endblock title %}
+{% block content %}
+<br>
+<br>
+
+<!-- 
+片段名称：  修改信息，密码的链接
+作者:	    ssc
+时间：	    2020-8-2
+功能：	    提供两个按钮
+			可以连接到修改个人信息或修改密码的界面
+修改记录： 
+--> 
+{%include 'userprofile/sidebar.html'%}
+<!-- 
+片段名称：  个人信息的展示
+作者:	    ssc
+时间：	    2020-8-2
+功能：	    展示头像，用户名，电话，简介，邮箱
+			如果已经填入信息，则会显示
+			如果未填入，会对应空下来或者显示暂无
+修改记录： 
+--> 
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+		<!--之后添加头像部分-->
+		<div class="offset-2">
+			{% if avatar %}
+			<div class="col-md-4">头像</div>
+			<img src="{{ avatar.url }}" style="max-width: 20%; border-radius: 15%; object-fit: cover;" class="col-md-4">
+			{% else %}
+			<h5 class="col-md-4">暂无头像</h5>
+			{% endif %}
+			<div style="color:gray" class="col-md-4">我的用户名:   {{ user.username }}</div>
+             <div style="color:gray" class="col-md-4">真实姓名:   {{ name }}</div>
+             <div style="color:gray" class="col-md-4">性别:   {{ gender }}</div>
+             <div style="color:gray" class="col-md-4">年龄:   {{ age }}</div>
+             <div style="color:gray" class="col-md-4">住院科室:   {{ department }}</div>
+             <div style="color:gray" class="col-md-4">责任医师:   {{ doctor }}</div>
+			</div>
+			
+		</div>
+	</div>
+</div>
+</div>
+{% if messages %}
+        <script>
+            {% for msg in messages %}
+                alert('{{ msg.message }}');
+            {% endfor %}
+        </script>
+{% endif %}
+{% endblock content %}

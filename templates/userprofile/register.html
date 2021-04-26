@@ -1,0 +1,50 @@
+{% extends "base.html" %} {% load staticfiles %}
+{% block title %} 登录 {% endblock title %}
+{% block content %}
+<!-- 
+片段名称：  注册界面
+作者:	    ssc
+时间：	    2020-8-3
+功能：	    个人注册，填写资料，然后后天数据库中录入
+修改记录： 
+--> 
+<div class="container">
+
+        <div class="d-flex justify-content-center mt-4">
+            <br>
+            <form method="post" action=".">
+                {% csrf_token %}
+                <!-- 账号 -->
+                <div class="form-group">
+                    <label for="username">账号</label>
+                    <input type="text" class="form-control" id="username" name="username" required>
+                </div>
+                <!-- 邮箱 -->
+                <div class="form-group">
+                    <label for="email">邮箱</label>
+                    <input type="text" class="form-control" id="email" name="email">
+                </div>
+                <!-- 密码 -->
+                <div class="form-group">
+                    <label for="password">设置密码</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                <!-- 确认密码 -->
+                <div class="form-group">
+                    <label for="password2">确认密码</label>
+                    <input type="password" class="form-control" id="password2" name="password2" required>
+                </div>
+                <!-- 提交按钮 -->
+                <button type="submit" class="btn btn-primary">提交</button>
+            </form>
+        </div>
+
+</div>
+{% if messages %}
+        <script>
+            {% for msg in messages %}
+                alert('{{ msg.message }}');
+            {% endfor %}
+        </script>
+{% endif %}
+{% endblock content %}

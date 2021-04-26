@@ -1,0 +1,326 @@
+{% extends "base.html" %}
+
+{% load staticfiles %}
+{% load like_tags %}
+{% load collect_tags %}
+
+<!-- 写入 base.html 中定义的 title -->
+{% block title %}
+问题详情
+
+{% endblock title %}
+
+<!-- 写入 base.html 中定义的 content -->
+ <!-- 
+片段名称：问题内容显示
+作者:	ssc
+时间：	2020-7-31
+功能：	显示问题的名称，用大号字体显示
+        用绿色标注问题的板块，作者等内容，如果有文件，文件名字会显示
+        然后在下面显示输入的问题内容,这里的显示支持,markdown
+        如果是问题提问者，会有特殊的权限，允许删除和编辑问题，如果是访问者，则不显示
+修改记录： 
+-->
+{% block content %}
+
+<div class="container"> 
+    <div class="row">
+        <h1 class="col-12 mt-4 mb-4">{{ question.title }}</h1>
+        <div class="col-12 alert alert-success">
+            <div>
+                版块：{{ question.column }}
+            </div>
+            <div>
+                作者：{{ question.author }}
+                {% if user == question.author %}
+                <!--要修改删除url，去下面scripe中找confirm_delete中的location.href-->
+                    <a href="#" onclick="confirm_delete()">删除问题</a>
+                    <a href="{% url 'question:question_update' question.id %}">编辑问题</a>
+                {% endif %}
+            </div>
+            {% if question.file %}
+            <div style="color:gray">
+                附件名称:   {{ question.file }}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-12">
+            <p>{{ question.description|safe }} </p>
+        </div>
+    </div>
+
+
+<!-- 
+片段名称：访问者的操作权限
+作者:	qhy
+时间：	2020-7-31
+功能：	如果有附件，可以下载附件
+        点击写回答，，可以进入回答问题界面
+        点赞和收藏按钮。点击后，点赞数，收藏数会增加，图标会改变，再次点击可以取消
+修改记录： 
+-->
+        <div class="d-flex justify-content-center">
+            {% if question.file %}
+            <button type="button" class="btn btn-primary mr-4" onclick="window.location.href='{% url 'question:download_file' question.id %}'">下载附件</button>
+            {% endif %}
+            <a href="{% url 'answer:answer_create' question.id %}">
+                <button type="button" class="btn btn-primary mr-4">写回答</button>
+            </a>
+
+            {% if user.is_authenticated %}
+            <button type="button" class="btn btn-link" style="text-decoration:none;color:darkslategrey;" onclick="like_change('questionpost', {{ question.id }})">
+                    {% if question|add_arg:request.user|call:"question_is_liked" %}
+                    <span id="like-container"><i id="like-icon" class="fas fa-heart" style="font-size:20px;"></i></span>
+                    {% else %}
+                    <span id="like-container"><i id="like-icon" class="far fa-heart" style="font-size:20px;"></i></span>
+                    {% endif %}
+                    点赞
+                    <span id="likes_number">{% get_likes_num question %}</span>
+            </button>
+
+            <button type="button" class="btn btn-link btn-sm" style="text-decoration:none;color:darkslategrey;" onclick="collect_change('questionpost', {{ question.id }})">
+                    {% if question|add_arg:request.user|call:"question_is_collected" %}
+                    <span id="collect-container"><i id="collect-icon" class="fas fa-paper-plane" style="font-size:20px;"></i></span>
+                    {% else %}
+                    <span id="collect-container"><i id="collect-icon" class="far fa-paper-plane" style="font-size:20px;"></i></span>
+                    {% endif %}
+                    收藏
+                    <span id="collect_number">{% get_collect_num question %}</span>
+            </button>
+            {% endif %}
+        </div>
+
+<!-- 
+片段名称：显示回答
+作者:	wzd
+时间：	2020-7-31
+功能：	显示该问题的回答
+        根据角色的不同，回答的发布者或者阅读者，显示不同的操作权限
+        点赞和收藏按钮。点击后，点赞数，收藏数会增加，图标会改变，再次点击可以取消
+修改记录： 
+-->
+    <!-- 显示回答 -->
+    <h4>共有{{ answers.count }}个回答</h4>
+    <div>
+        {% for answer in answers %}
+        <p>
+            <!-- 作者 -->
+            <strong style="color: pink">{{ answer.user }}</strong>
+        </p>
+        <!-- 回答内容 -->
+        <pre style="font-family: inherit; font-size: 1em;">{{ answer.body }}</pre>
+        <p>
+            <ul class="nav nav-tabs">
+            <li>
+                <span>
+                <!-- 下拉列表 -->
+                <div class="dropdown"  style="display:inline-block;">
+                <button type="button" class="btn dropdown-toggle" id="dropdownMenu1"
+                    data-toggle="dropdown" value=".btn .btn-primary"style="height:35px; width:40px;">
+
+                    <span class="caret"></span>
+                </button>
+
+                <style type="text/css" rel="stylesheet">a{color:black;}</style>
+                <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                    {% if answer.file %}
+                    <li role="presentation">
+                        <a onclick="window.location.href='{% url 'answer:download_file' answer.id %}'" href="#">下载附件</a>
+                    </li>
+                    {% endif %}
+
+                    {% if user == answer.user %}
+                    <li role="presentation">
+                        <a  href="{% url 'answer:answer_update' question.id answer.id %}">编辑回答</a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#" onclick="confirm_delete_comment({{  question.id}}, {{ answer.id }})">删除该回答</a>
+                    </li>
+                    {% endif %}
+
+                    <li role="presentation">
+                        等待更多操作...
+                    </li>
+                </ul>
+            </div>
+
+                </span>
+            </li>
+
+            <!-- 点赞 -->
+            {% if user.is_authenticated %}
+            <li>
+            <button type="button" class="btn btn-link btn-sm" style="text-decoration:none;color:darkslategrey;" onclick="like_change('answer', {{ answer.id }})">
+                {% if answer|add_arg:request.user|call:"answer_is_liked" %}
+                <span id="like-container{{answer.id}}"><i id="like-icon" class="fas fa-heart" style="font-size:20px;"></i></span>
+                {% else %}
+                <span id="like-container{{answer.id}}"><i id="like-icon" class="far fa-heart" style="font-size:20px;"></i></span>
+                {% endif %}
+                点赞
+                <span id="likes_number{{answer.id}}">{% get_likes_num answer %}</span>
+            </button>
+            </li>
+
+            <!-- 收藏 -->
+            <li>
+            <button type="button" class="btn btn-link btn-sm" style="text-decoration:none;color:darkslategrey;" onclick="collect_change('answer', {{ answer.id }})">
+                {% if answer|add_arg:request.user|call:"answer_is_collected" %}
+                <span id="collect-container{{answer.id}}"><i id="collect-icon" class="fas fa-paper-plane" style="font-size:20px;"></i></span>
+                {% else %}
+                <span id="collect-container{{answer.id}}"><i id="collect-icon" class="far fa-paper-plane" style="font-size:20px;"></i></span>
+                {% endif %}
+                收藏
+                <span id="collect_number{{answer.id}}">{% get_collect_num answer %}</span>
+            </button>
+            </li>
+            {% endif %}
+            <!-- 时间 -->
+            <li>
+                <span style="color: green">{{ answer.created|date:"Y-m-d H:i:s" }}</span>
+            </li>
+            </ul>
+        </p>
+        {% endfor %}
+    </div>
+
+
+</div>
+
+{% if messages %}
+<!--弹框形式-->
+<script>
+    {% for msg in messages %}
+        alert('{{ msg.message }}');
+    {% endfor %}
+</script>
+<!--{% endif %}-->
+
+{% endblock content %}
+
+{% block script %}
+
+<script>
+//函数功能：弹框确认是否删除，确认删除则调用删除函数
+//作者：    ssc
+//时间：	2020-7-31
+//修改记录：
+function confirm_delete() {
+    // 调用layer弹窗组件
+    layer.open({
+        // 弹窗标题
+        title: "确认删除",
+        // 正文
+        content: "确认删除该问题吗？",
+        // 点击确定按钮后调用的回调函数
+        yes: function(index, layero) {
+            // 指定应当前往的 url
+            location.href='{% url 'question:question_delete' question.id %}'
+        },
+    })
+}
+//函数功能：弹框确认是否删除，确认删除则调用删除函数
+//作者：    ssc
+//时间：	2020-7-31
+//修改记录：
+function confirm_delete_comment(question_id, answer_id) {
+    // 调用layer弹窗组件
+    layer.open({
+        // 弹窗标题
+        title: "确认删除",
+        // 正文
+        content: "确认删除该回答吗？",
+        // 点击确定按钮后调用的回调函数
+        yes: function(index, layero) {
+            // 指定应当前往的 url
+            var url = "{% url 'answer:answer_delete' 210000000 220000000 %}";
+            url = url.replace(/210000000/, question_id);
+            url = url.replace(/220000000/, answer_id);
+            location.href=url
+        },
+    });
+}
+//函数功能：点赞收藏函数的js函数，改变图标形式
+//作者：    qhy
+//时间：	2020-7-31
+//修改记录：
+    function like_change(content_type, object_id) {
+        $.ajax({
+            url: "{% url 'like:like_change' %}",
+            type: 'GET',
+            data: {
+                content_type: content_type,
+                object_id: object_id,
+            },
+            cache: false,
+            success: function (data) {
+                console.log(data);
+                if(content_type=="articlepost" || content_type=="questionpost"){
+                    if(data.is_liked){
+                        $("#like-container").html('<i id="like-icon" class="fas fa-heart" style="font-size:20px;"></i>');
+                    }
+                    else{
+                        $("#like-container").html('<i id="like-icon" class="far fa-heart" style="font-size:20px;"></i>');
+                    }
+                    $("#likes_number").html(data.likes_num);
+                }
+                else{
+                    var container = '#like-container'+object_id;
+                    if(data.is_liked){
+                        $(container).html('<i id="like-icon" class="fas fa-heart" style="font-size:20px;"></i>');
+                    }
+                    else{
+                        $(container).html('<i id="like-icon" class="far fa-heart" style="font-size:20px;"></i>');
+                    }
+                    var number = '#likes_number'+object_id;
+                    $(number).html(data.likes_num);
+                }
+
+            },
+            error: function (xhr) {
+                console.log(xhr);
+            }
+        });
+    }
+
+    function collect_change(content_type, object_id) {
+        $.ajax({
+            url: "{% url 'collect:collect_change' %}",
+            type: 'GET',
+            data: {
+                content_type: content_type,
+                object_id: object_id,
+            },
+            cache: false,
+            success: function (data) {
+                console.log(data);
+                if(content_type=="articlepost" || content_type=="questionpost") {
+                    if (data.is_collected) {
+                        $("#collect-container").html('<i id="collect-icon" class="fas fa-paper-plane" style="font-size:20px;"></i>');
+                    } else {
+                        $("#collect-container").html('<i id="collect-icon" class="far fa-paper-plane" style="font-size:20px;"></i>');
+                    }
+                    $("#collect_number").html(data.collect_num);
+                }
+                else{
+                    var container = '#collect-container'+object_id;
+                    if(data.is_collected){
+                        $(container).html('<i id="collect-icon" class="fas fa-paper-plane" style="font-size:20px;"></i>');
+                    }
+                    else{
+                        $(container).html('<i id="collect-icon" class="far fa-paper-plane" style="font-size:20px;"></i>');
+                    }
+                    var number = '#collect_number'+object_id;
+                    $(number).html(data.collect_num);
+                }
+            },
+            error: function (xhr) {
+                console.log(xhr);
+            }
+        });
+    }
+
+</script>
+
+{% endblock script %}
+

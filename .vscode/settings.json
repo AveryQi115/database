@@ -1,0 +1,7 @@
+{
+    "python.pythonPath": "/opt/anaconda3/bin/python",
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true,
+    "python.linting.pylintPath": "d:\\Anaconda3\\envs\\django\\Scripts\\pylint",
+    "python.linting.pylintArgs": ["--generate-members"]
+}

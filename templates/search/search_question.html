@@ -1,0 +1,229 @@
+<!-- extends表明此页面继承自 base.html 文件 -->
+{% extends "base.html" %}
+{% load staticfiles %}
+
+<!-- 写入 base.html 中定义的 title -->
+{% block title %}
+    搜索
+{% endblock title %}
+
+<!-- 写入 base.html 中定义的 content -->
+{% block content %}
+<!-- 写入 base.html 中定义的 content -->
+ <!-- 
+片段名称：问题的搜索框
+作者:	ssc
+时间：	2020-8-1
+功能：	在搜索框中输入内容，搜索相应内容
+修改记录： 
+-->
+    <!-- 新增，对应类型搜索栏 -->
+    <div class="container">
+        <div class="d-flex justify-content-center mt-4">
+            <form class="form-inline" >
+                <!-- type对应的是用户在之前的搜索栏选择的类型（问题，文章，回答）-->
+                <label for="search" class="mr-4">问题搜索{{type}}</label>
+                <input type="text"
+                    class="form-control mb-2 mr-sm-2"
+                       id="search"
+                    name="search"
+                    placeholder="搜索问题..."
+                    required
+                >
+            </form>
+        </div>
+    </div>
+
+ <!-- 
+片段名称：  搜索结果的显示
+作者:	    ssc
+时间：	    2020-8-1
+功能：	    显示搜索结果，如果搜索到相应结果，会以卡片形式的显示
+            显示内容，会显示文章的一部分内容
+            并显示文章的结果，显示文章的发布时间
+            点击卡片，可以进入文章详情
+修改记录： 
+-->
+    {% if search_q %}
+        {% if questions %}
+            <h4><span style="color: cadetblue">"{{ search_q }}"</span>的搜索结果如下：</h4>
+            <hr>
+        {% else %}
+            <h4>暂无<span style="color: cadetblue">"{{ search_q }}"</span>有关的{{type}}。</h4>
+            <hr>
+        {% endif %}
+        <div class="container">
+            <div class="row mt-2">
+    
+                {% for question in questions %}
+                <!-- 文章内容 -->
+                <div class="col-4 mb-4">
+                    <!-- 卡片容器 -->
+                    <div class="card h-100">
+                        <!-- 标题 -->
+                        <div class="card-header">
+                        <span>{{ question.title  }}</span>
+                        {% if question.column %}
+                        <a href=
+                        {% if question.column.title == '生活' %}
+                            "/blocks/blocks-list-life/"
+                        {% elif question.column.title == '学习' %}
+                            "/blocks/blocks-list-study/"
+                        {% elif question.column.title == '交友' %}
+                            "/blocks/blocks-list-friend/"
+                        {% endif %}>
+                        <button type="button"
+                         class="btn btn-sm mb-2
+                        {% if question.column.title == '生活' %}
+                            btn-warning
+                        {% elif question.column.title == '学习' %}
+                            btn-danger
+                        {% elif question.column.title == '交友' %}
+                            btn-success
+                        {% endif %}" 
+                        style=" float:right">
+                        {{question.column }}
+                        </button>
+                        </a>
+                        {% endif %}
+                        </div>
+                        <!-- 摘要 -->
+                        <div class="card-body">
+                            <p class="card-text">{{ question.description|slice:'100' }}...</p>
+                        </div>
+                        <!-- 注脚 -->
+                        <div class="card-footer">
+                            <span>
+                                <i class="fas fa-user" style="color:yellowgreen"></i>
+                                {{ question.author }}
+                            </span>
+                            <span>
+                                <i class="fas fa-clock" style="color:gray;"></i>
+                                {{ question.created|date:'Y-m-d' }}
+                            </span>
+                            <span>
+                                <i class="fas fa-clock" style="color:pink;"></i>
+                                {{ question.updated|date:'Y-m-d' }}
+                            </span>
+                            <a  href="{% url 'question:question_detail' question.id %}" class="btn btn-primary">阅读本文</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+    
+            </div>
+        </div>
+    {% else %}
+       <!-- 定义放置文章标题的div容器 -->
+<div class="container">
+
+
+    <div class="row mt-2">
+
+        {% for question in questions %}
+
+
+        <!-- 文章内容 -->
+        <div class="col-12">
+            <!-- 栏目 -->
+            {% if question.column %}
+                <button type="button"
+                    class="btn btn-sm mb-2
+                        {% if question.column.title == '生活' %}
+                            btn-warning
+                        {% elif question.column.title == '学习' %}
+                            btn-danger
+                        {% elif question.column.title == '交友' %}
+                            btn-success
+                        {% endif %}
+                    "
+                >
+                    {{ question.column }}
+                </button>
+            {% endif %}
+
+
+            <!-- 标题 -->
+            <h4>
+                <b>
+                    <a href="{% url 'question:question_detail' question.id %}"
+                       style="color: black;"
+                    >
+                        {{ question.title }}
+                    </a>
+                </b>
+            </h4>
+            <!-- 摘要 -->
+            <div>
+                <p style="color: gray;">
+                    {{ question.description|slice:'100' }}...
+                </p>
+            </div>
+            <!-- 注脚 -->
+            <p>
+                <!-- 附加信息，增加了图标 -->
+                <span>
+                    <i class="fas fa-eye" style="color: lightskyblue;"></i>
+                    {{ question.total_views }}&nbsp;&nbsp;&nbsp;
+                </span>
+                <span>
+                    <i class="fas fa-comments" style="color: yellowgreen;"></i>
+                    <!-- 修改为评论的计数 -->
+                    {{ question.answers.count }}&nbsp;&nbsp;&nbsp;
+                </span>
+                <span>
+                    <i class="fas fa-clock" style="color: pink;"></i>
+                    {{ question.created|date:'Y-m-d' }}
+                </span>
+            </p>
+            <hr>
+        </div>
+        <hr style="width: 100%;"/>
+    {% endfor %}
+
+    </div>
+<!-- 
+片段名称：  页码导航部分
+作者:	    wzd
+时间：	    2020-8-1
+功能：	    如果搜索结果有多页，实现在不同页面之间的跳转
+修改记录： 
+--> 
+    <div class="pagination row">
+        <div class="m-auto">
+            <span class="step-links">
+                <!-- 如果不是第一页，则显示上翻按钮 -->
+                {% if questions.has_previous %}
+                    <a href="?page=1&order={{ order }}&search={{ search }}&column={{ column }}" class="btn btn-success">
+                        &laquo; 1
+                    </a>
+                    <span>...</span>
+                    <a href="?page={{ questions.previous_page_number }}&order={{ order }}&search={{ search }}&column={{ column }}" class="btn btn-secondary">
+                        {{ questions.previous_page_number }}
+                    </a>
+                {% endif %}
+
+                <!-- 当前页面 -->
+                <span class="current btn btn-danger btn-lg">
+                    {{ questions.number }}
+                </span>
+
+                <!-- 如果不是最末页，则显示下翻按钮 -->
+                {% if questions.has_next %}
+                    <a href="?page={{ questions.next_page_number }}&order={{ order }}&search={{ search }}&column={{ column }}&tag={{ tag }}" class="btn btn-secondary">
+                        {{ questions.next_page_number }}
+                    </a>
+                    <span>...</span>
+                    <a href="?page={{ questions.paginator.num_pages }}&order={{ order }}&search={{ search }}&column={{ column }}&tag={{ tag }}"class="btn btn-success">
+                        {{ questions.paginator.num_pages }} &raquo;
+                    </a>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+
+</div>
+    {% endif %}
+
+  
+{% endblock content %}

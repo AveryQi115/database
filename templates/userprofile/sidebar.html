@@ -1,0 +1,21 @@
+
+
+
+
+
+<div class="container-fluid">
+	<div class="row ">
+		<!--分成两份2-10-->
+		<div class="col-md-2 col-sm-2">
+			<!--第一个列，2/12，中间嵌套一个行，-->
+			<div class="row">
+				<div class="col-md-8 col-sm-8">
+					<ul class="nav nav-sidebar">
+						<li><button type="button" class="btn btn-light"><a href="{% url 'userprofile:profile_update' user.id %}">更改个人信息</a></button></li>
+						<li><button type="button" class="btn btn-light"><a href="{% url 'userprofile:password_update' user.id %}">修改个人密码</a></button></li>
+					</ul>
+                </div>
+            </div>   
+		</div>
+	</div>
+</div>

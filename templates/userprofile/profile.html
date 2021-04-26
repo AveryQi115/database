@@ -1,0 +1,113 @@
+{% extends "base.html" %} {% load staticfiles %}
+{% block title %} 用户信息 {% endblock title %}
+{% block content %}
+<script src="https://cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<style>
+	img.pos_top
+	{
+		position:relative;
+		top:-460px;
+	}
+	</style>
+<br>
+<br>
+<!-- 
+片段名称：  修改信息，密码的链接
+作者:	    ssc
+时间：	    2020-8-2
+功能：	    提供两个按钮
+			可以连接到修改个人信息或修改密码的界面
+修改记录： 
+--> 
+{%include 'userprofile/sidebar.html'%}
+<!-- 
+片段名称：  填写个人信息
+作者:	    ssc
+时间：	    2020-8-2
+功能：	    上传头像，填写邮箱，简介等信息
+修改记录： 
+--> 
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+		<!--之后添加头像部分-->
+		<div class="offset-2">
+
+		<!--对账号和密码的修改-->
+		<form method="post" action="." enctype="multipart/form-data">
+				{% csrf_token %}
+				{{profile_form}}
+                <!-- 提交按钮 -->
+				 <button type="submit" class="btn btn-primary">保存更改</button>
+			</form>
+		</div>
+	</div>
+</div>
+</div>
+
+<script>
+	$("#avatar").change(function(){
+		 var objUrl = getObjectURL(this.files[0]) ;//获取文件信息
+			  if (objUrl) {
+			  $("#img0").attr("src", objUrl);
+			 }
+		if ($(this).val() !== '' && checkSize(this)) {
+            //其他操作
+            ;
+        }
+	}) ;
+	var userAgent = navigator.userAgent;
+    function checkSize(input) {
+        var Sys = {};
+        var flag;
+        var filesize = 0;
+		//判断浏览器种类
+		if (userAgent.indexOf("MSIE") > 0 || userAgent.indexOf("rv:11.0") > 0) {
+            Sys.ie = true;
+        }
+        if (userAgent.indexOf("Firefox") > 0) {
+            Sys.firefox = true;
+        }
+        if (userAgent.indexOf("Chrome") > 0) {
+            Sys.Chrome = true;
+        }
+        //获取文件大小
+        if (Sys.firefox || Sys.Chrome) {
+            filesize = input.files[0].size;
+        } else if (Sys.ie) {
+            var fileobject = new ActiveXObject("Scripting.FileSystemObject");//获取上传文件的对象(ie11会弹框确认ActiveX的安全问题，确认即可；)
+            var file = fileobject.GetFile(input.value);//获取上传的文件
+            filesize = file.Size;//文件大小
+        }
+
+        //判断是否符合要求c
+        if (filesize/(1024*1024) <10) {
+            flag = true;
+        } else {
+            alert("附件过大，建议不要超过2mb！");
+            flag = false;
+        }
+        return flag;
+    }
+	function getObjectURL(file) {
+			 var url = null;
+			 if (window.createObjectURL!=undefined) {
+			  url = window.createObjectURL(file) ;
+			 } else if (window.URL!=undefined) { // mozilla(firefox)
+			  url = window.URL.createObjectURL(file) ;
+			 } else if (window.webkitURL!=undefined) { // webkit or chrome
+			  url = window.webkitURL.createObjectURL(file) ;
+			 }
+			 return url ;
+			}
+</script>
+{% if messages %}
+        <script>
+            {% for msg in messages %}
+                alert('{{ msg.message }}');
+            {% endfor %}
+        </script>
+{% endif %}
+{% endblock content %}
+
+

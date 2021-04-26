@@ -1,0 +1,69 @@
+<!-- extends表明此页面继承自 base.html 文件 -->
+{% extends "base.html" %}
+{% load staticfiles %}
+
+<!-- 写入 base.html 中定义的 title -->
+{% block title %}
+    病历详情
+{% endblock title %}
+<!-- 
+片段名称： 主界面
+作者:	    ssc
+时间：	    2020-8-4
+功能：	   显示主界面，包含了header footer 发布的入口还有热门板块
+修改记录： 
+--> 
+<!-- 写入 base.html 中定义的 content -->
+{% block content %}
+    <!-- 引入病人列表内容 -->
+    <div class="container">
+        <div class="row">
+          <div class="col-12">
+              <table class="table table-image">
+                <thead>
+                  <tr>
+                    <th scope="col">头像</th>
+                    <th scope="col">姓名</th>
+                    <th scope="col">性别</th>
+                    <th scope="col">年龄</th>
+                    <th scope="col">责任医师</th>
+                    <th scope="col">住院科室</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="w-25">
+                        {% if avatar %}
+                        <img src={{avatar.url}} class="img-fluid img-thumbnail" alt="avatar" style="width: 80px;height: 80px; border-radius:25%;">
+                        {% else %}
+                        <img src="https://ss0.bdstatic.com/94oJfD_bAAcT8t7mm9GUKT-xh_/timg?image&quality=100&size=b4000_4000&sec=1592383038&di=3918b09a3244e0fa942873a932879bc8&src=http://pic.soutu123.cn/element_origin_min_pic/01/37/09/22573c3a831082c.jpg!/fw/700/quality/90/unsharp/true/compress/true" alt={{patient.name}} class="img-fluid img-thumbnail" style="width: 80px;height: 80px; border-radius:25%;" />
+                        {% endif %}
+                    </td>
+                    <td>{{name}}</td>
+                    <td>{{gender}}</td>
+                    <td>{{age}}</td>
+                    <td>{{doctor}}</td>
+                    <td>{{department}}</td>
+                  </tr>
+                  <tr>
+                      <td>
+                          {{tag}}
+                      </td>
+                      <td colspan="5">
+                          {{description}}
+                      </td>
+                  </tr>
+                </tbody>
+              </table>   
+          </div>
+        </div>
+      </div>
+      
+    {% if messages %}
+        <script>
+            {% for msg in messages %}
+                alert('{{ msg.message }}');
+            {% endfor %}
+        </script>
+    {% endif %}
+{% endblock content %}
