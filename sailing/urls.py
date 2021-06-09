@@ -21,7 +21,6 @@ from django.shortcuts import render, redirect
 from django.conf import settings
 from django.conf.urls.static import static
 
-from doctor.views import getPatientList
 from utils.utils import getUserGroup
 from patient.models import Patient
 
@@ -32,9 +31,7 @@ def mainPage(request):
         group = 'patient'
 
     if group == 'doctor':
-        patient_list = getPatientList(request.user.username)
-        context = {'patient_list':patient_list}
-        return render(request, 'doctor_mainPage.html', context)
+        return redirect('doctor:patientList')
     else:
         try:
             # 已有住院记录返回病历详情
@@ -55,6 +52,7 @@ urlpatterns = [
 
     path('userprofile/', include('userprofile.urls', namespace='userprofile')),
     path('patient/', include('patient.urls', namespace='patient')),
+    path('doctor/', include('doctor.urls', namespace='doctor')),
 
     # path('article/', include('article.urls', namespace='article')),
     # path('comment/', include('comment.urls', namespace='comment')),

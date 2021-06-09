@@ -8,6 +8,14 @@ from .models import Patient, MedicalRecord
 from doctor.models import Doctor
 from .forms import registerPatientForm
 
+'''
+    restful api相关
+'''
+from rest_framework.response import Response
+from rest_framework import generics
+from .serializers import MedicalRecordSerializer
+from patient.models import Patient
+
 @login_required(login_url='/userprofile/login')
 def medicalRecord(request, id):
     # 权限检查
