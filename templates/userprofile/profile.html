@@ -36,7 +36,7 @@
 		<!--对账号和密码的修改-->
 		<form method="post" action="." enctype="multipart/form-data">
 				{% csrf_token %}
-				{{profile_form}}
+				{{profile_form.as_p}}
                 <!-- 提交按钮 -->
 				 <button type="submit" class="btn btn-primary">保存更改</button>
 			</form>

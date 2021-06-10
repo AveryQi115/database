@@ -27,4 +27,4 @@ class Doctor(models.Model):
     avatar          = models.ImageField(upload_to='avatar/%Y%m%d/', blank=True)
 
     def __str__(self):
-        return f'doctor_id:{self.user.username},doctor_name:{self.name}'
+        return f'doctor_name:{self.name},department:{self.department}'

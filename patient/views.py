@@ -13,7 +13,6 @@ from .forms import registerPatientForm
 '''
 from rest_framework.response import Response
 from rest_framework import generics
-from .serializers import MedicalRecordSerializer
 from patient.models import Patient
 
 @login_required(login_url='/userprofile/login')
@@ -23,33 +22,15 @@ def medicalRecord(request, id):
         messages.error(request, "抱歉，你无权查看该病人的病历")
         return redirect('')
 
-    # 第一次登陆的user其实没有关联的病人账号
-    if Patient.objects.filter(user__id=id).exists():
-        patient = Patient.objects.get(user__id=id)
-    else:
-        patient = Patient.objects.create(user=request.user)
-
-    if MedicalRecord.objects.filter(patient__user__id=id).exists():
-        medicalRecord = MedicalRecord.objects.get(patient__user__id=id)
-    else:
-        medicalRecord = MedicalRecord.objects.create(patient=patient)
-
-    group = getUserGroup(request.user.id)
-    if group == 'doctor':
-        # 检查病历信息中的医生一栏是否为空
-        update_medicalRecord(medicalRecord, request.user.id)
-
-    context = {**getPatientInfo(patient),**getMRInfo(medicalRecord)}
+    context = getRecordContext(request.user.id, id)
     # print(context)
     return render(request, 'patient/medicalRecord.html',context)
-    
     
 def update_medicalRecord(medicalRecord,doctorID):
     doctor = Doctor.objects.get(user__id=doctorID)
     if not medicalRecord.doctor:
         medicalRecord.doctor = doctor
         medicalRecord.save()
-
 
 # 检查对当前id相关信息进行查询的用户是否有权限
 def user_authentication(request, id):
@@ -83,20 +64,42 @@ def getMRInfo(m):
             'description':m.description
         }
 
+def getRecordContext(doctorId,patientId):
+    # 第一次登陆的user其实没有关联的病人账号
+    if Patient.objects.filter(user__id=patientId).exists():
+        patient = Patient.objects.get(user__patient=patientId)
+    else:
+        patient = Patient.objects.create(user=request.user)
+
+    if MedicalRecord.objects.filter(patient__user__id=patientId).exists():
+        medicalRecord = MedicalRecord.objects.get(patient__user__id=patientId)
+    else:
+        medicalRecord = MedicalRecord.objects.create(patient=patient)
+
+    group = getUserGroup(doctorId)
+    if group == 'doctor':
+        # 检查病历信息中的医生一栏是否为空
+        update_medicalRecord(medicalRecord, doctorId)
+
+    if Prescription.objects.filter(patient__user__id=patientId).exists():
+        prescriptionLists = Prescription.objects.filter(patient__user__id=patientId)
+        context = {**getPatientInfo(patient),**getMRInfo(medicalRecord),"prescriptionLists":prescriptionLists}
+        return context
+    
+    context = {**getPatientInfo(patient),**getMRInfo(medicalRecord)}
+    return context
+
 @login_required(login_url='/userprofile/login')
 def registerPatient(request):
-    # 检查：不能重复挂号
-    if Patient.objects.filter(user__id=request.user.id).exists():
-        return redirect("patient:medicalRecord",id = request.user.id)
-    patient = Patient.objects.create(user=request.user)
-    print("create patient:", patient)
-
     if request.method == 'POST':
         form = registerPatientForm(request.POST,request.FILES)
         if form.is_valid():
             form_cd = form.cleaned_data
-            print("I'm here")
-            print(patient)
+            if form_cd['doctor'].department != form_cd['department']:
+                messages.error(request, "当前选择医生与挂号科室不符！")
+                return render(request, 'patient/registerPatient.html', {'form':form})
+
+            patient = Patient.objects.get(user__id=doctorId)
             patient.name = form_cd['name']
             patient.age = form_cd['age']
             patient.gender = form_cd['gender']
@@ -105,13 +108,16 @@ def registerPatient(request):
             if 'avatar' in request.FILES:
                 patient.avatar = form_cd['avatar']
             patient.save()
-            print(patient)
-            print("I have been saved")
+
             return redirect("patient:medicalRecord",id=request.user.id)
         else:
             return HttpResponse("挂号表单输入有误。请重新输入~")
 
     elif request.method == 'GET':
+        # 检查：不能重复挂号
+        if Patient.objects.filter(user__id=request.user.id).exists():
+            return redirect("patient:medicalRecord",id = request.user.id)
+
         form = registerPatientForm()
         context = {'form':form}
         return render(request, 'patient/registerPatient.html',context)
@@ -151,3 +157,4 @@ def profile_update_doctor(request, id):
         return render(request, 'userprofile/profile.html', context)
     else:
         return HttpResponse("请使用GET或POST请求数据")
+

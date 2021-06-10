@@ -35,6 +35,7 @@ class Patient(models.Model):
         return f'userid:{self.user.username},username:{self.name}'
 
 
+# 病历模型
 class MedicalRecord(models.Model):
     '''
     属性：
@@ -43,6 +44,7 @@ class MedicalRecord(models.Model):
         department          ：科室
         description         ：病历描述
         tag                 ：基本病种分类
+        prescription        ：诊断记录
     '''
     DEPARTMENTS = (
         ('A','Anaesthesiology and Adult Intensive Care Department'),
@@ -63,6 +65,22 @@ class MedicalRecord(models.Model):
     tag             = models.CharField(max_length=40,blank=True)
 
     def __str__(self):
-        return ''
+        return f'patient_name:{patient.name},doctor_name:{doctor.name},tag:{tag},description:{description}'
 
+
+class Prescription(models.Model):
+    '''
+    属性：
+        patient             ：病人
+        description         ：诊断描述
+        treatment           ：治疗手段
+        cost                ：费用
+    '''
+    patient         = models.ForeignKey(Patient,on_delete=models.CASCADE,  related_name='prescribe_patient')
+    description     = models.TextField(blank=True)
+    treatment       = models.TextField(blank=True)
+    cost            = models.FloatField(validators=[MinValueValidator(0)],blank=True,null=True)
+
+    def __str__(self):
+        return f'description:{description},treatment:{treatment},cost:{cost}'
 
