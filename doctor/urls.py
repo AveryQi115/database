@@ -6,5 +6,6 @@ app_name = 'doctor'
 urlpatterns = [
     # 病人列表
     path('patientList', views.PatientsList, name='patientList'),
-    path('add_prescription/<int:id>', views.AddPrescription, name='add_prescription'),
+    path('addPrescription/<int:id>', views.AddPrescription, name='addPrescription'),
+    path('addDescription/<int:id>', views.AddDescription, name='addDescription'),
 ]

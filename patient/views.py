@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 from utils.utils import getUserGroup, getDepartment, getDoctorName, getGender, getTitle
-from .models import Patient, MedicalRecord
+from .models import Patient, MedicalRecord, Prescription
 from doctor.models import Doctor
 from .forms import registerPatientForm
 
@@ -45,7 +45,10 @@ def user_authentication(request, id):
         return True
 
     else:
-        # 检查该医生是否是病人的责任医师
+        # 检查当前id是否是病人且该医生是否是病人的责任医师
+        if not Patient.objects.filter(user__id=id).exists():
+            return False
+
         patient = Patient.objects.get(user__id=id)
         if patient.doctor.user.id != request.user.id:
             return False
@@ -66,11 +69,13 @@ def getMRInfo(m):
 
 def getRecordContext(doctorId,patientId):
     # 第一次登陆的user其实没有关联的病人账号
+    # 获取病人信息
     if Patient.objects.filter(user__id=patientId).exists():
-        patient = Patient.objects.get(user__patient=patientId)
+        patient = Patient.objects.get(user__id=patientId)
     else:
         patient = Patient.objects.create(user=request.user)
 
+    # 获取MRI信息
     if MedicalRecord.objects.filter(patient__user__id=patientId).exists():
         medicalRecord = MedicalRecord.objects.get(patient__user__id=patientId)
     else:
@@ -81,9 +86,10 @@ def getRecordContext(doctorId,patientId):
         # 检查病历信息中的医生一栏是否为空
         update_medicalRecord(medicalRecord, doctorId)
 
+    # 获取所有病人相关的诊断信息
     if Prescription.objects.filter(patient__user__id=patientId).exists():
         prescriptionLists = Prescription.objects.filter(patient__user__id=patientId)
-        context = {**getPatientInfo(patient),**getMRInfo(medicalRecord),"prescriptionLists":prescriptionLists}
+        context = {**getPatientInfo(patient),**getMRInfo(medicalRecord),"prescriptionList":prescriptionLists}
         return context
     
     context = {**getPatientInfo(patient),**getMRInfo(medicalRecord)}
@@ -99,7 +105,7 @@ def registerPatient(request):
                 messages.error(request, "当前选择医生与挂号科室不符！")
                 return render(request, 'patient/registerPatient.html', {'form':form})
 
-            patient = Patient.objects.get(user__id=doctorId)
+            patient = Patient.objects.get(user__id=request.user.id)
             patient.name = form_cd['name']
             patient.age = form_cd['age']
             patient.gender = form_cd['gender']

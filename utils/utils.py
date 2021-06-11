@@ -59,8 +59,7 @@ def getUserGroup(id):
     try:
         myuser = User.objects.get(id=id)
         for g in myuser.groups.all():
-            if g.__str__()=='doctor':
-                group = 'doctor'
+            group = g.__str__()
     except Exception as e:
         print(e)
 

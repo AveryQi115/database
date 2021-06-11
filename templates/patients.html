@@ -9,20 +9,17 @@
 修改记录： 
 --> 
 <!-- 列表循环 -->
-<div class="row ml-5">
+<div class="row ml-5 justify-content-between">
     {% for patient in patient_list %}
         <!-- 文章内容 -->
-        <div class="col-12">
-            <!-- 栏目 -->
-            <button type="button"
-                class="btn btn-sm mb-2">
-                {{ patient.user.username }}
-            </button>
+        <hr>
+        <div class="col-9">
             <!-- 标题 -->
             <h4>
-                <b><a href='{% url "patient:medicalRecord" patient.user.id %}'>{{ patient.name }}</a>
+                <b><a href='{% url "patient:medicalRecord" patient.patient.user.id %}'>{{ patient.patient.name }}</a>
                 </b>
             </h4>
+
             <!-- 摘要 -->
             <div>
                 <p style="color: gray;">
@@ -34,14 +31,27 @@
                 <!-- 附加信息 -->
                 <span>
                     <i class="fas fa-user" style="color:yellowgreen"></i>
-                    {{ patient.department }}
+                    {{ patient.patient.user.username }}
                 </span>
                 <span>
                     <i class="fas fa-clock" style="color:gray;"></i>
                     {{ patient.mr.tag}}
                 </span>
             </p>
-            <hr>
         </div>
+        <div class="col-3">
+            <br>
+            <span>
+                <a type="button" class="btn btn-info btn-sm mb-2" href='{% url "doctor:addDescription" patient.patient.user.id %}'>
+                    编辑病历
+                </a>
+            </span>
+            <span>
+                <a type="button" class="btn btn-info btn-sm mb-2" href='{% url "doctor:addPrescription" patient.patient.user.id %}'>
+                    添加诊断
+                </a>
+            </span>
+        </div>
+
     {% endfor %}
 </div>

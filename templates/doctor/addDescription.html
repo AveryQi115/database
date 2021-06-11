@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}
+    编辑病历
+{% endblock title %}
+
+{% block content %}
+    <div class="container">
+        <div class="d-flex mt-5 justify-content-center">
+            <br>
+            <form method="post" action='{% url "doctor:addDescription" id %}' enctype="multipart/form-data">
+				{% csrf_token %}
+				{{form.as_p}}
+                <!-- 提交按钮 -->
+				 <button type="submit" class="btn btn-primary">提交病历修改</button>
+			</form>
+        </div>
+    </div>
+    {% if messages %}
+        <script>
+            {% for msg in messages %}
+                alert('{{ msg.message }}');
+            {% endfor %}
+        </script>
+    {% endif %}
+{% endblock content %}

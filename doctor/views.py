@@ -1,13 +1,14 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 '''
     restful api相关
 '''
-from patient.models import Patient
+from patient.models import Patient, Prescription, MedicalRecord
 from patient.views import user_authentication, getRecordContext
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from utils.utils import getGender,getDepartment,getTitle,getUserGroup
+from .forms import addPrescriptionForm, addDescriptionForm
 # Create your views here.
 
 def PatientsList(request):
@@ -18,8 +19,12 @@ def PatientsList(request):
         return redirect('userprofile/login/')
     
     # 调取当前用户全部病人
+    patient_list = []
     patients = Patient.objects.filter(doctor__user__id=request.user.id)
-    return render(request, 'doctor_mainPage.html',{"patient_list":patients})
+    for patient in patients:
+        mr = MedicalRecord.objects.get(patient__user__id=patient.user.id)
+        patient_list.append({"patient":patient,"mr":mr})
+    return render(request, 'doctor_mainPage.html',{"patient_list":patient_list})
 
 @login_required(login_url='/userprofile/login')
 def AddPrescription(request,id):
@@ -33,44 +38,49 @@ def AddPrescription(request,id):
     if request.method == 'POST':
         form = addPrescriptionForm(request.POST)
         if form.is_valid():
-            #TODO
             form_cd = form.cleaned_data
-            if form_cd['doctor'].department != form_cd['department']:
-                messages.error(request, "当前选择医生与挂号科室不符！")
-                return render(request, 'patient/registerPatient.html', {'form':form})
-
-            patient = Patient.objects.get(user__id=request.user.id)
-            patient.name = form_cd['name']
-            patient.age = form_cd['age']
-            patient.gender = form_cd['gender']
-            patient.department = form_cd['department']
-            patient.doctor = form_cd['doctor']
-            if 'avatar' in request.FILES:
-                patient.avatar = form_cd['avatar']
-            patient.save()
-
-            return redirect("patient:medicalRecord",id=request.user.id)
+            pres = Prescription(patient=Patient.objects.get(user__id=id))
+            pres.description = form_cd['description']
+            pres.treatment = form_cd['treatment']
+            pres.cost = form_cd['cost']
+            pres.save()
+            return redirect("patient:medicalRecord",id=id)
         else:
-            return HttpResponse("挂号表单输入有误。请重新输入~")
+            return HttpResponse("诊断表单输入有误。请重新输入~")
 
     elif request.method == 'GET':
-        # 检查：不能重复挂号
-        if Patient.objects.filter(user__id=request.user.id).exists():
-            return redirect("patient:medicalRecord",id = request.user.id)
-
-        form = registerPatientForm()
-        context = {'form':form}
-        return render(request, 'patient/registerPatient.html',context)
+        form = addPrescriptionForm()
+        context = {'form':form,"id":id}
+        return render(request, 'doctor/addPrescription.html',context)
     else:
         return HttpResponse("请使用GET或POST请求数据")
 
+@login_required(login_url='/userprofile/login')
+def AddDescription(request,id):
+    # 当前用户必须是当前id的主治医生
+    if not user_authentication(request, id):
+        messages.error(request, "抱歉，你无权查看该病人的病历")
+        return redirect('')
 
-# def getPatientList(doctorID,offset=0,limit=-1):
-#     res = Patient.objects.filter(doctor__user__username=doctorID)
-#     if limit < 0:
-#         return res
-#     #TODO:后续分页
-#     return res[offset:offset+limit]
+    context = getRecordContext(request.user.id, id)
+    if request.method == 'POST':
+        form = addDescriptionForm(request.POST)
+        if form.is_valid():
+            form_cd = form.cleaned_data
+            des = MedicalRecord.objects.get(patient__user__id=id)
+            des.description = form_cd['description']
+            des.tag = form_cd['tag']
+            des.save()
+            return redirect("patient:medicalRecord",id=id)
+        else:
+            return HttpResponse("病历表单输入有误。请重新输入~")
+
+    elif request.method == 'GET':
+        form = addDescriptionForm()
+        context = {'form':form,"id":id}
+        return render(request, 'doctor/addDescription.html',context)
+    else:
+        return HttpResponse("请使用GET或POST请求数据")
 
 def getDoctorInfo(d):
     return {'name':d.name,
@@ -79,3 +89,5 @@ def getDoctorInfo(d):
             'department':getDepartment(d.department),
             'avatar':d.avatar,
             'title':getTitle(d.title)}
+
+

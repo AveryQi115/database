@@ -27,7 +27,6 @@ class Patient(models.Model):
     gender          = models.CharField(max_length=1,blank=True,choices=GENDERS)
     doctor          = models.ForeignKey(Doctor, on_delete=models.SET_NULL, blank=True, null=True)
     department      = models.CharField(max_length=1,blank=True,choices=DEPARTMENTS)
-    mr              = models.OneToOneField('MedicalRecord', on_delete=models.SET_NULL, null=True, blank=True, related_name='patient_medicalRecord')
     isDischarged    = models.BooleanField(blank=True,null=True)
     avatar          = models.ImageField(upload_to='avatar/%Y%m%d/', blank=True)
 

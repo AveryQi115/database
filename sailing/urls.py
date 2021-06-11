@@ -32,6 +32,8 @@ def mainPage(request):
 
     if group == 'doctor':
         return redirect('doctor:patientList')
+    elif group == 'operator':
+        return redirect('storage:treatmentList')
     else:
         try:
             # 已有住院记录返回病历详情
@@ -53,15 +55,7 @@ urlpatterns = [
     path('userprofile/', include('userprofile.urls', namespace='userprofile')),
     path('patient/', include('patient.urls', namespace='patient')),
     path('doctor/', include('doctor.urls', namespace='doctor')),
-
-    # path('article/', include('article.urls', namespace='article')),
-    # path('comment/', include('comment.urls', namespace='comment')),
-    # path('collect/', include('collect.urls', namespace='collect')),
-    
-    # path('search_user/', user_views.search_user),
-    
-    # path('inbox/notifications/', include(notifications.urls, namespace='notifications')),
-    # path('notice/', include('notice.urls', namespace='notice')),
+    path('storage/', include('storage.urls', namespace='storage')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

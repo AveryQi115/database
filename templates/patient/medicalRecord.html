@@ -53,6 +53,21 @@
                           {{description}}
                       </td>
                   </tr>
+                  {% if prescriptionList %}
+                    {% for pres in prescriptionList %}
+                      <tr>
+                        <td>
+                            {{pres.treatment}}
+                        </td>
+                        <td>
+                            {{pres.cost}}
+                        </td>
+                        <td colspan="4">
+                            {{pres.description}}
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  {% endif %}
                 </tbody>
               </table>   
           </div>

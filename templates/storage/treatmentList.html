@@ -1,0 +1,58 @@
+<!-- extends表明此页面继承自 base.html 文件 -->
+{% extends "base.html" %}
+{% load staticfiles %}
+
+<!-- 写入 base.html 中定义的 title -->
+{% block title %}
+    仓储管理
+{% endblock title %}
+
+{% block content %}
+<!-- 列表循环 -->
+<div class="container">
+    <div class="row">
+      <div class="col-12">
+          <table class="table table-image">
+            <thead>
+              <tr>
+                <th scope="col">样品</th>
+                <th scope="col">名称</th>
+                <th scope="col">数量</th>
+                <th scope="col">单价</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for treatment in treatmentList %}
+              <tr>
+                <!-- <td class="w-25">
+                    {% if avatar %}
+                    <img src={{avatar.url}} class="img-fluid img-thumbnail" alt="avatar" style="width: 80px;height: 80px; border-radius:25%;">
+                    {% else %}
+                    <img src="https://ss0.bdstatic.com/94oJfD_bAAcT8t7mm9GUKT-xh_/timg?image&quality=100&size=b4000_4000&sec=1592383038&di=3918b09a3244e0fa942873a932879bc8&src=http://pic.soutu123.cn/element_origin_min_pic/01/37/09/22573c3a831082c.jpg!/fw/700/quality/90/unsharp/true/compress/true" alt={{patient.name}} class="img-fluid img-thumbnail" style="width: 80px;height: 80px; border-radius:25%;" />
+                    {% endif %}
+                </td> -->
+                <td>{{treatment.name}}</td>
+                <td>{{treatment.number}}</td>
+                <td>{{treatment.cost}}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>   
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row justify-content-center">
+      <a type="button" class="btn btn-large btn-info" href='{% url "storage:addTreatment" %}'>
+        一键补货
+      </a>
+    </div>
+  </div>
+  {% if messages %}
+        <script>
+            {% for msg in messages %}
+                alert('{{ msg.message }}');
+            {% endfor %}
+        </script>
+    {% endif %}
+{% endblock content %}
