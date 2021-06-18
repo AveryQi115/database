@@ -6,13 +6,6 @@
 {% endblock title %}
 
 
- <!-- 
-片段名称：通知模块
-作者:	ssc
-时间：	2020-7-30
-功能：	对通知信息的提示，通过列表的形式通知
-修改记录： 
--->
 {% block content %}
 <div class="container">
     <div class="row mt-4 ml-4">
@@ -23,20 +16,15 @@
         <ul class="list-group">
             <!-- 通过循环方式，展示所有通知 -->
             {% for notice in notices %}
-                <!-- 展示的具体内容 -->
-                <!-- 展示的内容如 xxx在yyy中zz了你 -->
-                <!--  xxx是对方的名字，yy是你的名字，zz是动作 -->
                 <li class="list-group-item" id="notice_link">
                     <!-- 链接到的地址，如具体的问题，文章 -->
                     <a href="{% url "notice:update" %}?id={{ notice.target.id }}&notice_id={{ notice.id }}&verb={{ notice.verb }}"
                        target="_blank">
                     <span style="color: #5897fb;">
-                        <!-- 动作发出者，如评论者，回答者的名字 -->
-                        {{ notice.actor }}
+                        {{ notice.actor.name }}
                     </span>
-                        在 <span style="color: #01a252;">{{ notice.target }}</span> {{ notice.verb }}。
+                        {{ notice.verb }}。
                     </a>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ notice.timestamp|date:"Y/m/d H:i" }}
                 </li>
             {% endfor %}
         </ul>

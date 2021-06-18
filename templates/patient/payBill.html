@@ -1,0 +1,76 @@
+<!-- extends表明此页面继承自 base.html 文件 -->
+{% extends "base.html" %}
+{% load staticfiles %}
+
+<!-- 写入 base.html 中定义的 title -->
+{% block title %}
+    账单详情
+{% endblock title %}
+<!-- 
+片段名称： 主界面
+作者:	    ssc
+时间：	    2020-8-4
+功能：	   显示主界面，包含了header footer 发布的入口还有热门板块
+修改记录： 
+--> 
+<!-- 写入 base.html 中定义的 content -->
+{% block content %}
+    <!-- 引入病人列表内容 -->
+    <div class="container">
+        <div class="row">
+          <div class="col-12">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">药品名称</th>
+                    <th scope="col">用药数量</th>
+                    <th scope="col">药品金额</th>
+                    <th scope="col">额外诊费</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if prescriptionList %}
+                    {% for pres in prescriptionList %}
+                      <tr>
+                        <td>
+                            {{pres.treatment.name}}
+                        </td>
+                        <td>
+                            {{pres.number}}
+                        </td>
+                        <td>
+                            {{pres.treatment.cost}}
+                        </td>
+                        <td>
+                            {{pres.cost}}
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  {% endif %}
+                  <hr>
+                  <tr>
+                    <td></td>
+                    <td> 总金额：{{total_cost}}</td>
+                    <td> 已结算：{{paid}}</td>
+                    <td> 待付款：{{remain}}</td>
+                  </tr>
+                </tbody>
+              </table>   
+          </div>
+        </div>
+      </div>
+
+      <div class="container">
+        <div class="row justify-content-center">
+          <a type="button" class="btn btn-info" href="{% url 'patient:paid' total_cost %}">付款</a>
+        </div>
+      </div>
+      
+    {% if messages %}
+        <script>
+            {% for msg in messages %}
+                alert('{{ msg.message }}');
+            {% endfor %}
+        </script>
+    {% endif %}
+{% endblock content %}

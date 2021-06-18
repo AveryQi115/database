@@ -24,6 +24,8 @@ from django.conf.urls.static import static
 from utils.utils import getUserGroup
 from patient.models import Patient
 
+import notifications.urls
+
 def mainPage(request):
     try:
         group = getUserGroup(request.user.id)
@@ -56,6 +58,10 @@ urlpatterns = [
     path('patient/', include('patient.urls', namespace='patient')),
     path('doctor/', include('doctor.urls', namespace='doctor')),
     path('storage/', include('storage.urls', namespace='storage')),
+    
+    path("select2/", include("django_select2.urls")),
+    path('inbox/notifications/', include(notifications.urls, namespace='notifications')),
+    path('notice/', include('notice.urls', namespace='notice')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

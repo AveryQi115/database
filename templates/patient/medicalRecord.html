@@ -15,6 +15,7 @@
 --> 
 <!-- 写入 base.html 中定义的 content -->
 {% block content %}
+
     <!-- 引入病人列表内容 -->
     <div class="container">
         <div class="row">
@@ -57,12 +58,18 @@
                     {% for pres in prescriptionList %}
                       <tr>
                         <td>
-                            {{pres.treatment}}
+                            {{pres.treatment.name}}
+                        </td>
+                        <td>
+                            {{pres.number}}
+                        </td>
+                        <td>
+                            {{pres.treatment.cost}}
                         </td>
                         <td>
                             {{pres.cost}}
                         </td>
-                        <td colspan="4">
+                        <td colspan="2">
                             {{pres.description}}
                         </td>
                       </tr>
@@ -73,6 +80,15 @@
           </div>
         </div>
       </div>
+
+      {% if group == 'patient' %}
+      <div class="container">
+        <div class="row justify-content-center">
+          <a type="button" class="btn btn-info mr-5" href="{% url 'patient:payBill' %}">结算</a>
+          <a type="button" class="btn btn-info ml-5" href="{% url 'patient:applyCheckOut' %}">申请出院</a>
+        </div>
+      </div>
+      {% endif %}
       
     {% if messages %}
         <script>

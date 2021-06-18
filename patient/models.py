@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 
 from doctor.models import Doctor
 from utils.utils import DEPARTMENTS,GENDERS
+from storage.models import Treatment
 
 # Create your models here.
 
@@ -27,11 +28,12 @@ class Patient(models.Model):
     gender          = models.CharField(max_length=1,blank=True,choices=GENDERS)
     doctor          = models.ForeignKey(Doctor, on_delete=models.SET_NULL, blank=True, null=True)
     department      = models.CharField(max_length=1,blank=True,choices=DEPARTMENTS)
-    isDischarged    = models.BooleanField(blank=True,null=True)
+    isDischarged    = models.BooleanField(default = False)
     avatar          = models.ImageField(upload_to='avatar/%Y%m%d/', blank=True)
 
     def __str__(self):
-        return f'userid:{self.user.username},username:{self.name}'
+        # return f'userid:{self.user.username},username:{self.name}'
+        return ''
 
 
 # 病历模型
@@ -64,7 +66,8 @@ class MedicalRecord(models.Model):
     tag             = models.CharField(max_length=40,blank=True)
 
     def __str__(self):
-        return f'patient_name:{patient.name},doctor_name:{doctor.name},tag:{tag},description:{description}'
+        # return f'patient_name:{self.patient.name},doctor_name:{self.doctor.name},tag:{self.tag},description:{self.description}'
+        return ''
 
 
 class Prescription(models.Model):
@@ -77,9 +80,21 @@ class Prescription(models.Model):
     '''
     patient         = models.ForeignKey(Patient,on_delete=models.CASCADE,  related_name='prescribe_patient')
     description     = models.TextField(blank=True)
-    treatment       = models.TextField(blank=True)
+    treatment       = models.ForeignKey(Treatment,on_delete=models.SET_NULL, null=True, related_name='prescribe_treatment')
+    number          = models.IntegerField(validators=[MinValueValidator(0),MaxValueValidator(200)],blank=True,null=True)
     cost            = models.FloatField(validators=[MinValueValidator(0)],blank=True,null=True)
 
     def __str__(self):
-        return f'description:{description},treatment:{treatment},cost:{cost}'
+        # return f'description:{self.description},treatment:{self.treatment},cost:{self.cost}'
+        return ''
+
+
+class Bill(models.Model):
+    '''
+    属性：
+        patient             ：病人
+        paid                ：已结算金额
+    '''
+    patient         = models.ForeignKey(Patient,on_delete=models.CASCADE)
+    paid            = models.FloatField(validators=[MinValueValidator(0)])
 

@@ -1,16 +1,14 @@
 from django.shortcuts import render, redirect
-
-'''
-    restful api相关
-'''
 from patient.models import Patient, Prescription, MedicalRecord
 from patient.views import user_authentication, getRecordContext
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from utils.utils import getGender,getDepartment,getTitle,getUserGroup
 from .forms import addPrescriptionForm, addDescriptionForm
+from storage.models import Treatment
 # Create your views here.
 
+@login_required(login_url='/userprofile/login')
 def PatientsList(request):
     # 当前用户必须是医生
     group = getUserGroup(request.user.id)
@@ -20,7 +18,7 @@ def PatientsList(request):
     
     # 调取当前用户全部病人
     patient_list = []
-    patients = Patient.objects.filter(doctor__user__id=request.user.id)
+    patients = Patient.objects.filter(doctor__user__id=request.user.id,isDischarged=False)
     for patient in patients:
         mr = MedicalRecord.objects.get(patient__user__id=patient.user.id)
         patient_list.append({"patient":patient,"mr":mr})
@@ -29,10 +27,16 @@ def PatientsList(request):
 @login_required(login_url='/userprofile/login')
 def AddPrescription(request,id):
     # 当前用户必须是当前id的主治医生
-        # 权限检查
+    # 权限检查
     if not user_authentication(request, id):
         messages.error(request, "抱歉，你无权查看该病人的病历")
-        return redirect('')
+        return redirect('/')
+
+    # 检查病人是否已出院
+    patient = Patient.objects.get(user__id=id)
+    if patient.isDischarged:
+        messages.error(request,"当前病人已出院")
+        return redirect('/')
 
     context = getRecordContext(request.user.id, id)
     if request.method == 'POST':
@@ -42,6 +46,13 @@ def AddPrescription(request,id):
             pres = Prescription(patient=Patient.objects.get(user__id=id))
             pres.description = form_cd['description']
             pres.treatment = form_cd['treatment']
+            if pres.treatment.number<=form_cd['number']:
+                messages.error(request, "抱歉，当前药品库存不足")
+                return redirect('/')
+            pres.number = form_cd['number']
+            pres.treatment.number -= pres.number
+            pres.treatment.save()
+
             pres.cost = form_cd['cost']
             pres.save()
             return redirect("patient:medicalRecord",id=id)
@@ -60,7 +71,13 @@ def AddDescription(request,id):
     # 当前用户必须是当前id的主治医生
     if not user_authentication(request, id):
         messages.error(request, "抱歉，你无权查看该病人的病历")
-        return redirect('')
+        return redirect('/')
+
+    # 检查病人是否已出院
+    patient = Patient.objects.get(user__id=id)
+    if patient.isDischarged:
+        messages.error(request,"当前病人已出院")
+        return redirect('/')
 
     context = getRecordContext(request.user.id, id)
     if request.method == 'POST':

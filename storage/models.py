@@ -16,4 +16,4 @@ class Treatment(models.Model):
     number          = models.IntegerField(validators=[MinValueValidator(0),MaxValueValidator(10000)],default=0)
 
     def __str__(self):
-        return f'treatment_name:{self.name},number:{self.number},cost:{self.cost}'
+        return f'treatment_name:{self.name}'
